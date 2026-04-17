@@ -1,26 +1,46 @@
-const CATEGORIES = ['all', 'social', 'banking', 'work', 'email', 'api_key', 'other'];
+const CATEGORIES = [
+  'all',
+  'social',
+  'banking',
+  'work',
+  'email',
+  'api_key',
+  'other',
+];
 
 const ICONS = {
-  all: '🗂️', social: '💬', banking: '🏦',
-  work: '💼', email: '📧', api_key: '🔑', other: '📁',
+  all: '🗂️',
+  social: '💬',
+  banking: '🏦',
+  work: '💼',
+  email: '📧',
+  api_key: '🔑',
+  other: '📁',
 };
 
 export default function CategoryFilter({ active, onChange }) {
   return (
     <div className="flex gap-2 flex-wrap">
-      {CATEGORIES.map(cat => (
-        <button
-          key={cat}
-          onClick={() => onChange(cat)}
-          className={`text-xs px-3 py-1.5 rounded-full border transition capitalize
-            ${active === cat
-              ? 'bg-violet-600 border-violet-600 text-white'
-              : 'bg-gray-900 border-gray-700 text-gray-400 hover:border-violet-500 hover:text-white'
-            }`}
-        >
-          {ICONS[cat]} {cat === 'api_key' ? 'API Key' : cat}
-        </button>
-      ))}
+      {CATEGORIES.map((cat) => {
+        const isActive = active === cat;
+
+        return (
+          <button
+  key={cat}
+  onClick={() => onChange(cat)}
+  className={`px-4 py-2 rounded-2xl border text-sm transition-all capitalize flex items-center gap-2 min-w-fit ${
+    isActive
+      ? 'bg-violet-600/20 border-violet-500/30 text-white'
+      : 'bg-white/[0.03] border-white/10 text-gray-400 hover:text-white hover:border-white/20'
+  }`}
+>
+  <span className="text-2xl leading-none">{ICONS[cat]}</span>
+  <span className="whitespace-nowrap">
+    {cat === 'api_key' ? 'API Key' : cat}
+  </span>
+</button>
+        );
+      })}
     </div>
   );
 }

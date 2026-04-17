@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.png';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -13,6 +15,7 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
+
     try {
       await login(form.email, form.password);
       navigate('/dashboard');
@@ -24,65 +27,105 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gray-950 relative flex items-center justify-center px-4 overflow-hidden">
 
-        {/* Logo */}
+      {/* Background Glow */}
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-cyan-500/10 blur-[140px] rounded-full"></div>
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-violet-500/10 blur-[120px] rounded-full"></div>
+
+      <div className="relative w-full max-w-md">
+
+        {/* Branding */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-violet-600 rounded-2xl mb-4">
-            <span className="text-3xl">🔐</span>
+          <div className="relative inline-block mb-4">
+            <div className="absolute inset-0 bg-cyan-400/20 blur-3xl rounded-full"></div>
+
+            <img
+              src={logo}
+              alt="TALA Logo"
+              className="relative w-40 h-40 object-cover mx-auto scale-200"
+            />
           </div>
-          <h1 className="text-3xl font-bold text-white">Tala</h1>
-          <p className="text-gray-400 mt-1">Your secure credential vault</p>
+
+    
+
+          <p className="text-gray-400 text-lg mt-2 tracking-wide">
+            Secure Credential Manager
+          </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-          <h2 className="text-xl font-semibold text-white mb-6">Welcome back</h2>
+        {/* Login Card */}
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 md:p-10">
+
+          <h2 className="text-3xl font-bold text-white mb-2">
+            Welcome Back
+          </h2>
+
+          <p className="text-gray-400 text-sm mb-6">
+            Sign in to access your secure vault
+          </p>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm">
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-2xl mb-5 text-sm">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
+
+            {/* Email */}
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Email</label>
+              <label className="block text-sm text-gray-400 mb-2">
+                Email Address
+              </label>
+
               <input
                 type="email"
                 required
                 value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
-                placeholder="anant@example.com"
-                className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-violet-500 transition"
+                onChange={(e) =>
+                  setForm({ ...form, email: e.target.value })
+                }
+                placeholder="Enter your email"
+                className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
               />
             </div>
 
+            {/* Password */}
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Password</label>
+              <label className="block text-sm text-gray-400 mb-2">
+                Password
+              </label>
+
               <input
                 type="password"
                 required
                 value={form.password}
-                onChange={e => setForm({ ...form, password: e.target.value })}
-                placeholder="••••••••"
-                className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-violet-500 transition"
+                onChange={(e) =>
+                  setForm({ ...form, password: e.target.value })
+                }
+                placeholder="Enter your password"
+                className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
               />
             </div>
 
+            {/* Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition text-sm mt-2"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-500 text-white font-semibold hover:scale-[1.02] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100 transition-all shadow-lg"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
 
+          {/* Footer */}
           <p className="text-center text-gray-500 text-sm mt-6">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-violet-400 hover:text-violet-300">
+            Don&apos;t have an account?{' '}
+            <Link
+              to="/register"
+              className="text-violet-400 hover:text-violet-300 font-medium transition"
+            >
               Register
             </Link>
           </p>

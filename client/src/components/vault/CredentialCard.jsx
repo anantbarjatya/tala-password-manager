@@ -2,12 +2,21 @@ import { useState } from 'react';
 import { useVault } from '../../context/VaultContext';
 
 const CATEGORY_ICONS = {
-  social: '💬', banking: '🏦', work: '💼',
-  email: '📧', api_key: '🔑', other: '📁',
+  social: '💬',
+  banking: '🏦',
+  work: '💼',
+  email: '📧',
+  api_key: '🔑',
+  other: '📁',
 };
 
-export default function CredentialCard({ credential, onEdit, onDelete }) {
+export default function CredentialCard({
+  credential,
+  onEdit,
+  onDelete,
+}) {
   const { revealPassword } = useVault();
+
   const [revealed, setRevealed] = useState(false);
   const [password, setPassword] = useState('');
   const [copied, setCopied] = useState('');
@@ -19,7 +28,9 @@ export default function CredentialCard({ credential, onEdit, onDelete }) {
       setPassword('');
       return;
     }
+
     setLoading(true);
+
     try {
       const plain = await revealPassword(credential._id);
       setPassword(plain);
@@ -34,46 +45,64 @@ export default function CredentialCard({ credential, onEdit, onDelete }) {
   const copyText = async (text, field) => {
     await navigator.clipboard.writeText(text);
     setCopied(field);
-    setTimeout(() => setCopied(''), 2000);
+
+    setTimeout(() => {
+      setCopied('');
+    }, 2000);
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-800 hover:border-gray-700 rounded-xl p-5 transition">
+    <div className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-5 transition-all hover:border-white/20 hover:-translate-y-1">
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gray-800 rounded-lg flex items-center justify-center text-lg">
+      <div className="flex items-start justify-between gap-3 mb-5">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-11 h-11 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-lg shrink-0">
             {CATEGORY_ICONS[credential.category] || '📁'}
           </div>
-          <div>
-            <p className="font-medium text-white">{credential.title}</p>
+
+          <div className="min-w-0">
+            <h3 className="font-semibold text-white truncate">
+              {credential.title}
+            </h3>
+
             {credential.website && (
-                <a
+              <a
                 href={credential.website}
                 target="_blank"
                 rel="noreferrer"
-                className="text-xs text-violet-400 hover:underline"
+                className="text-xs text-violet-400 hover:text-violet-300 truncate block mt-1"
               >
                 {credential.website}
               </a>
             )}
           </div>
         </div>
-        <span className="text-xs bg-violet-500/10 text-violet-400 border border-violet-500/20 px-2 py-0.5 rounded-full capitalize">
-          {credential.category === 'api_key' ? 'API Key' : credential.category}
+
+        <span className="text-[11px] px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 capitalize shrink-0">
+          {credential.category === 'api_key'
+            ? 'API Key'
+            : credential.category}
         </span>
       </div>
 
       {/* Username */}
       {credential.username && (
-        <div className="flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2 mb-2">
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">Username</p>
-            <p className="text-sm text-white">{credential.username}</p>
+        <div className="rounded-2xl bg-black/20 border border-white/5 px-4 py-3 mb-3 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] uppercase tracking-wider text-gray-500 mb-1">
+              Username
+            </p>
+
+            <p className="text-sm text-white truncate">
+              {credential.username}
+            </p>
           </div>
+
           <button
-            onClick={() => copyText(credential.username, 'username')}
-            className="text-gray-500 hover:text-white text-xs transition"
+            onClick={() =>
+              copyText(credential.username, 'username')
+            }
+            className="text-xs px-2 py-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition shrink-0"
           >
             {copied === 'username' ? '✅' : '📋'}
           </button>
@@ -81,25 +110,30 @@ export default function CredentialCard({ credential, onEdit, onDelete }) {
       )}
 
       {/* Password */}
-      <div className="flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2 mb-4">
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-gray-500 mb-0.5">Password</p>
+      <div className="rounded-2xl bg-black/20 border border-white/5 px-4 py-3 mb-3 flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] uppercase tracking-wider text-gray-500 mb-1">
+            Password
+          </p>
+
           <p className="text-sm text-white font-mono truncate">
             {revealed ? password : '••••••••••••'}
           </p>
         </div>
-        <div className="flex gap-2 ml-2 shrink-0">
+
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleReveal}
             disabled={loading}
-            className="text-gray-500 hover:text-white text-xs transition"
+            className="text-xs px-2 py-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition"
           >
             {loading ? '⏳' : revealed ? '🙈' : '👁️'}
           </button>
+
           {revealed && (
             <button
               onClick={() => copyText(password, 'password')}
-              className="text-gray-500 hover:text-white text-xs transition"
+              className="text-xs px-2 py-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition"
             >
               {copied === 'password' ? '✅' : '📋'}
             </button>
@@ -109,24 +143,31 @@ export default function CredentialCard({ credential, onEdit, onDelete }) {
 
       {/* Notes */}
       {credential.notes && (
-        <p className="text-xs text-gray-500 mb-4 bg-gray-800 rounded-lg px-3 py-2">
-          📝 {credential.notes}
-        </p>
+        <div className="rounded-2xl bg-black/20 border border-white/5 px-4 py-3 mb-4">
+          <p className="text-[11px] uppercase tracking-wider text-gray-500 mb-1">
+            Notes
+          </p>
+
+          <p className="text-sm text-gray-300 line-clamp-3">
+            {credential.notes}
+          </p>
+        </div>
       )}
 
       {/* Actions */}
-      <div className="flex gap-2">
+      <div className="grid grid-cols-2 gap-3">
         <button
           onClick={() => onEdit(credential)}
-          className="flex-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 py-2 rounded-lg transition"
+          className="py-2.5 rounded-2xl bg-white/[0.03] border border-white/10 text-sm text-gray-200 hover:bg-white/[0.06] transition"
         >
-          ✏️ Edit
+           Edit
         </button>
+
         <button
           onClick={() => onDelete(credential._id)}
-          className="flex-1 text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 py-2 rounded-lg transition"
+          className="py-2.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-sm text-red-400 hover:bg-red-500/20 transition"
         >
-          🗑️ Delete
+           Delete
         </button>
       </div>
     </div>
