@@ -11,8 +11,8 @@ const sendTokenCookie = (res, userId) => {
 
   res.cookie('token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: true,
+    sameSite: 'none',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 };
@@ -63,7 +63,7 @@ export const googleLogin = async (req, res) => {
         email: user.email,
         avatar: user.avatar,
         authProvider: user.authProvider,
-        masterPasswordSet: user.masterPasswordSet,
+        masterPasswordSet: !!user.masterPasswordHash,
       },
       isNewUser,
     });
@@ -73,7 +73,7 @@ export const googleLogin = async (req, res) => {
   }
 };
 
-// ─── SETUP MASTER PASSWORD (Google users ke liye) ───────────
+// ─── SETUP MASTER PASSWORD ──────────────────────────────────
 export const setupMasterPassword = async (req, res) => {
   try {
     const { masterPassword } = req.body;
@@ -84,17 +84,15 @@ export const setupMasterPassword = async (req, res) => {
       });
     }
 
-    const user = await User.findById(req.user._id).select(
-      '+masterPasswordHash'
-    );
+    const user = await User.findById(req.user._id).select('+masterPasswordHash');
 
-    if (user.masterPasswordSet) {
-      return res
-        .status(400)
-        .json({ message: 'Master password already set' });
+    if (user.masterPasswordHash) {
+      return res.status(400).json({
+        message: 'Master password already set',
+      });
     }
 
-    user.masterPasswordHash = masterPassword;
+    user.masterPasswordHash = await bcrypt.hash(masterPassword, 12);
     await user.save();
 
     res.json({
@@ -106,7 +104,7 @@ export const setupMasterPassword = async (req, res) => {
   }
 };
 
-// @POST /api/auth/register
+// ─── REGISTER ───────────────────────────────────────────────
 export const register = async (req, res, next) => {
   try {
     const { name, email, password, masterPassword } = req.body;
@@ -144,6 +142,7 @@ export const register = async (req, res, next) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        masterPasswordSet: true,
       },
     });
   } catch (error) {
@@ -151,7 +150,7 @@ export const register = async (req, res, next) => {
   }
 };
 
-// @POST /api/auth/login
+// ─── LOGIN ──────────────────────────────────────────────────
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -162,7 +161,7 @@ export const login = async (req, res, next) => {
       });
     }
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select('+password +masterPasswordHash');
 
     if (!user) {
       return res.status(401).json({
@@ -192,7 +191,7 @@ export const login = async (req, res, next) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        masterPasswordSet: user.masterPasswordSet,
+        masterPasswordSet: !!user.masterPasswordHash,
       },
     });
   } catch (error) {
@@ -200,10 +199,12 @@ export const login = async (req, res, next) => {
   }
 };
 
-// @POST /api/auth/logout
+// ─── LOGOUT ─────────────────────────────────────────────────
 export const logout = (req, res) => {
   res.cookie('token', '', {
     httpOnly: true,
+    secure: true,
+    sameSite: 'none',
     expires: new Date(0),
   });
 
@@ -213,33 +214,31 @@ export const logout = (req, res) => {
   });
 };
 
-// @GET /api/auth/me
+// ─── GET ME ────────────────────────────────────────────────
 export const getMe = async (req, res) => {
+  const user = await User.findById(req.user._id).select('+masterPasswordHash');
+
   res.json({
     success: true,
     user: {
-      id: req.user._id,
-      name: req.user.name,
-      email: req.user.email,
-      avatar: req.user.avatar,
-      authProvider: req.user.authProvider,
-      masterPasswordSet: req.user.masterPasswordSet,
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      authProvider: user.authProvider,
+      masterPasswordSet: !!user.masterPasswordHash,
     },
   });
 };
 
-// @POST /api/auth/verify-master
+// ─── VERIFY MASTER PASSWORD ───────────────────────────────
 export const verifyMasterPassword = async (req, res, next) => {
   try {
     const { masterPassword } = req.body;
 
-    const user = await User.findById(req.user._id).select(
-      '+masterPasswordHash'
-    );
+    const user = await User.findById(req.user._id).select('+masterPasswordHash');
 
-    const isMatch = await user.compareMasterPassword(
-      masterPassword
-    );
+    const isMatch = await user.compareMasterPassword(masterPassword);
 
     if (!isMatch) {
       return res.status(401).json({
