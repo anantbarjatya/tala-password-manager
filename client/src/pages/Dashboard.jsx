@@ -58,11 +58,11 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#030712] text-white">
-      {!vaultUnlocked ? (
-  user?.masterPasswordSet ? (
-    <MasterPasswordPrompt />
-  ) : (
+   {!vaultUnlocked ? (
+  user?.masterPasswordSet === false ? (
     <SetupMasterPassword />
+  ) : (
+    <MasterPasswordPrompt />
   )
 ) : (
         <div className="flex min-h-screen">
