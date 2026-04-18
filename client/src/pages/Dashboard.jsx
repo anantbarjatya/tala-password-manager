@@ -10,6 +10,7 @@ import CategoryFilter from '../components/vault/CategoryFilter';
 import AddCredential from './AddCredential';
 import AddCard from './AddCard';
 import CardCard from '../components/vault/CardCard';
+import SetupMasterPassword from './SetupMasterPassword';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -58,8 +59,12 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#030712] text-white">
       {!vaultUnlocked ? (
-        <MasterPasswordPrompt />
-      ) : (
+  user?.masterPasswordSet ? (
+    <MasterPasswordPrompt />
+  ) : (
+    <SetupMasterPassword />
+  )
+) : (
         <div className="flex min-h-screen">
           {/* Sidebar */}
           <aside className="w-[260px] border-r border-white/10 bg-white/[0.02] backdrop-blur-xl hidden lg:flex flex-col px-6 py-6">
