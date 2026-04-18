@@ -13,3 +13,4 @@ server/.env
 client/.env
 server/firebase-service-account.json
 client/src/.env
+node_modules/
