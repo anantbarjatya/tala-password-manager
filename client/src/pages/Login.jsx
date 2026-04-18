@@ -34,11 +34,11 @@ export default function Login() {
     try {
       const res = await googleLogin();
 
-      if (res.isNewUser || !res.user.masterPasswordSet) {
-        navigate('/setup-master');
-      } else {
-        navigate('/dashboard');
-      }
+     if (res.isNewUser) {
+  navigate('/setup-master');
+} else {
+  navigate('/dashboard');
+}
     } catch (err) {
       setError(err.response?.data?.message || 'Google login failed');
     } finally {

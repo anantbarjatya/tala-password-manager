@@ -29,7 +29,7 @@ export const googleLogin = async (req, res) => {
     const decoded = await admin.auth().verifyIdToken(idToken);
     const { uid, email, name, picture } = decoded;
 
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email }).select('+masterPasswordHash');
 
     if (user && user.authProvider === 'local') {
       return res.status(400).json({
