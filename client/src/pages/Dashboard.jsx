@@ -16,13 +16,13 @@ export default function Dashboard() {
   const { user, logout } = useAuth();
   const { credentials, vaultUnlocked, lockVault, deleteCredential, loading } =
     useVault();
-  const { cards} = useCards();
+  const { cards } = useCards();
 
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
   const [showAdd, setShowAdd] = useState(false);
   const [editData, setEditData] = useState(null);
-  const [activeTab, setActiveTab] = useState('passwords'); // 'passwords' | 'cards'
+  const [activeTab, setActiveTab] = useState('passwords');
   const [showAddCard, setShowAddCard] = useState(false);
 
   const handleLogout = async () => {
@@ -58,13 +58,26 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#030712] text-white">
-   {!vaultUnlocked ? (
-  user?.masterPasswordSet === false ? (
-    <SetupMasterPassword />
-  ) : (
-    <MasterPasswordPrompt />
-  )
-) : (
+      {!vaultUnlocked ? (
+        <div className="min-h-screen bg-[#030712]">
+          {/* Topbar with logout — hamesha visible */}
+          <div className="flex justify-between items-center px-6 py-4 border-b border-white/10">
+            <img src={logo} alt="TALA" className="w-16 h-16 object-cover scale-150 ml-4" />
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] text-gray-300 hover:text-red-400 transition"
+            >
+              Logout
+            </button>
+          </div>
+
+          {user?.masterPasswordSet === false ? (
+            <SetupMasterPassword />
+          ) : (
+            <MasterPasswordPrompt />
+          )}
+        </div>
+      ) : (
         <div className="flex min-h-screen">
           {/* Sidebar */}
           <aside className="w-[260px] border-r border-white/10 bg-white/[0.02] backdrop-blur-xl hidden lg:flex flex-col px-6 py-6">
@@ -76,7 +89,6 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Sidebar shows category filter only on passwords tab */}
             {activeTab === 'passwords' && (
               <div className="space-y-3">
                 <button
@@ -213,7 +225,6 @@ export default function Dashboard() {
                     </button>
                   </div>
 
-                  {/* Mobile categories */}
                   <div className="lg:hidden mb-5">
                     <CategoryFilter active={category} onChange={setCategory} />
                   </div>
