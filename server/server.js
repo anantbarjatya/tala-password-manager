@@ -9,6 +9,7 @@ import authRoutes from './routes/authRoutes.js';
 import credentialRoutes from './routes/credentialRoutes.js';
 import errorHandler from './middleware/errorMiddleware.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
+import cardRoutes from "./routes/cardRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -23,6 +24,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(mongoSanitizeMiddleware);
+app.use("/api/cards", cardRoutes);
 
 app.use('/api', apiLimiter);
 

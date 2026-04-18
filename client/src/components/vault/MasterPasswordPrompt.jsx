@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useVault } from '../../context/VaultContext';
+import { useCards } from '../../context/CardContext';
 
 export default function MasterPasswordPrompt() {
   const [masterPassword, setMasterPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { unlockVault } = useVault();
+  const { fetchCards } = useCards();
 
   const handleUnlock = async (e) => {
     e.preventDefault();
@@ -13,6 +15,7 @@ export default function MasterPasswordPrompt() {
     setLoading(true);
     try {
       await unlockVault(masterPassword);
+      await fetchCards();
       setMasterPassword('');
     } catch {
       setError('Wrong master password!');

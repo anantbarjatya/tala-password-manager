@@ -3,48 +3,74 @@ import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: [true, 'Name is required'],
-      trim: true,
-    },
+    name: { type: String, required: true, trim: true },
+
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: true,
       unique: true,
       lowercase: true,
       trim: true,
     },
+
     password: {
       type: String,
-      required: [true, 'Password is required'],
-      minlength: 8,
-      select: false, // queries mein password auto-hide rahega
+      select: false,
+      default: null,
     },
-    // Master password ka hash — vault lock/unlock ke liye
+
     masterPasswordHash: {
       type: String,
-      required: [true, 'Master password is required'],
       select: false,
+      default: null,
+    },
+
+    masterPasswordSet: {
+      type: Boolean,
+      default: false,
+    },
+
+    googleId: {
+      type: String,
+      default: null,
+    },
+
+    authProvider: {
+      type: String,
+      enum: ['local', 'google'],
+      default: 'local',
+    },
+
+    avatar: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true }
 );
 
+// Compare normal password
+userSchema.methods.comparePassword = async function (entered) {
+  if (!this.password) return false;
+  return await bcrypt.compare(entered, this.password);
+};
+
+// Compare master password
+userSchema.methods.compareMasterPassword = async function (entered) {
+  if (!this.masterPasswordHash) return false;
+  return await bcrypt.compare(entered, this.masterPasswordHash);
+};
+
+// Hash passwords before save
 userSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
-  this.password = await bcrypt.hash(this.password, 12);
+  if (this.isModified('password') && this.password) {
+    this.password = await bcrypt.hash(this.password, 12);
+  }
+
+  if (this.isModified('masterPasswordHash') && this.masterPasswordHash) {
+    this.masterPasswordHash = await bcrypt.hash(this.masterPasswordHash, 12);
+    this.masterPasswordSet = true;
+  }
 });
 
-// Login ke time password compare karne ka method
-userSchema.methods.comparePassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
-
-// Master password compare karne ka method
-userSchema.methods.compareMasterPassword = async function (enteredMaster) {
-  return await bcrypt.compare(enteredMaster, this.masterPasswordHash);
-};
-
-const User = mongoose.model('User', userSchema);
-export default User;
+export default mongoose.model('User', userSchema);

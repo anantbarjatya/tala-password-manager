@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { VaultProvider } from './context/VaultContext'
+import { CardProvider } from './context/CardContext'
 import './index.css'
 import App from './App.jsx'
 
@@ -11,7 +12,9 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <AuthProvider>
         <VaultProvider>
-          <App />
+          <CardProvider>
+            <App />
+          </CardProvider>
         </VaultProvider>
       </AuthProvider>
     </BrowserRouter>
