@@ -61,16 +61,13 @@ userSchema.methods.compareMasterPassword = async function (entered) {
   return await bcrypt.compare(entered, this.masterPasswordHash);
 };
 
-// Hash passwords before save
+// Hash password before save (only login password, NOT masterPasswordHash)
 userSchema.pre('save', async function () {
   if (this.isModified('password') && this.password) {
     this.password = await bcrypt.hash(this.password, 12);
   }
-
-  if (this.isModified('masterPasswordHash') && this.masterPasswordHash) {
-    this.masterPasswordHash = await bcrypt.hash(this.masterPasswordHash, 12);
-    this.masterPasswordSet = true;
-  }
+  // masterPasswordHash controller mein already hash hoti hai
+  // isliye yahan dobara hash NAHI karenge
 });
 
 export default mongoose.model('User', userSchema);
