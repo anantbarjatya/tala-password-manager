@@ -5,7 +5,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import SetupMasterPassword from './pages/SetupMasterPassword';
-import StartupLoader from './components/StartupLoader';
+import StartupLoader from './components/vault/StartupLoader';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
